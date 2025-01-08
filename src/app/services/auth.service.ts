@@ -3,9 +3,14 @@ import {
   HttpClient,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, throwError, of } from 'rxjs';
+import { Observable, throwError, of, BehaviorSubject } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+
+interface AuthState {
+  isLoggedIn: boolean;
+  username: string | null;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +18,25 @@ import { environment } from '../../environments/environment';
 export class AuthService {
   private apiUrl = environment.apiUrl;
   currentUsername: string | null = null; // Store the username in memory
+  
+  // Add BehaviorSubject for auth state
+  private authState = new BehaviorSubject<AuthState>({
+    isLoggedIn: false,
+    username: null
+  });
 
-  constructor(private http: HttpClient) {}
+  authState$ = this.authState.asObservable();
+
+  constructor(private http: HttpClient) {
+    // Initialize auth state from localStorage on service creation
+    const token = localStorage.getItem('Authorization');
+    if (token) {
+      this.authState.next({
+        isLoggedIn: true,
+        username: this.currentUsername
+      });
+    }
+  }
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('Authorization');
@@ -46,52 +68,34 @@ export class AuthService {
     email: string;
     password: string;
   }): Observable<any> {
-    const body = {
+    // Create a clean object without any string quotes
+    const cleanUserData = {
       username: userData.username,
       email: userData.email,
-      password: userData.password,
+      password: userData.password
     };
-  
-    console.log("Request body: ", body);
-  
-    return new Observable((observer) => {
-      this.http.post(`${this.apiUrl}/users`, body, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        observe: 'response',
-      }).subscribe({
-        next: (response) => {
-          console.log("HTTP POST successful: ", response);
-  
-          if (response.status === 201) {
-            console.log("User registered successfully.");
-            observer.next({ success: true });
-            observer.complete();
-          } else {
-            console.warn("Unexpected response status: ", response.status);
-            observer.next(response);
-            observer.complete();
-          }
-        },
-        error: (error: HttpErrorResponse) => {
-          console.error("HTTP POST failed:", error);
-  
-          let errorMessage = 'Registration failed';
-          if (error.status === 400) {
-            errorMessage = 'Please fill in all required fields';
-          } else if (error.status === 409) {
-            errorMessage = 'Username already exists';
-          } else if (error.status === 500) {
-            errorMessage = 'Server error. Please try again later';
-          }
-  
-          console.warn("Error message prepared: ", errorMessage);
-          observer.error({ success: false, message: errorMessage });
-        }
-      });
-    });
-  }  
+
+    console.log('AuthService: Starting registration process');
+    console.log('AuthService: API URL:', this.apiUrl);
+    console.log('AuthService: Clean user data being sent:', cleanUserData);
+
+    return this.http.post(`${this.apiUrl}/users`, cleanUserData).pipe(
+      map(response => {
+        console.log('AuthService: Registration HTTP response:', response);
+        return { success: true };
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('AuthService: Registration error details:', {
+          status: error.status,
+          statusText: error.statusText,
+          error: error.error,
+          message: error.message,
+          url: error.url
+        });
+        return throwError(() => error);
+      })
+    );
+  }
 
   login(username: string, password: string): Observable<any> {
     const url = `${this.apiUrl}/users/login?username=${username}&password=${password}`;
@@ -101,12 +105,19 @@ export class AuthService {
           const token = response.headers.get('Authorization');
           this.saveToken(token);
           this.currentUsername = username; // Save the username
-          return { success: true };
+          
+          // Update auth state
+          this.authState.next({
+            isLoggedIn: true,
+            username: username
+          });
+          return { success: true, code: response.status };
         }
-        return { success: false };
+
+        return { success: false, code: response.status };
       }),
       catchError((error) => {
-        return of({ success: false, message: 'Login failed' });
+        return of({ success: false, message: 'Login failed', code: error.status });
       })
     );
   }
@@ -118,5 +129,10 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('Authorization');
     this.currentUsername = null; // Clear the username
+    // Update auth state
+    this.authState.next({
+      isLoggedIn: false,
+      username: null
+    });
   }
 }

@@ -37,12 +37,18 @@ export class LoginComponent implements OnInit {
       this.authService.login(username, password).subscribe({
         next: (response) => {
           console.log('Login response:', response);
-
-          this.authService.currentUsername = username; // Store username in AuthService
-            
-          // Show success modal
-          this.showModal = true;
-          this.loginForm.reset();
+          
+          if (response.success) {
+            this.authService.currentUsername = username; // Store username in AuthService
+              
+            // Show success modal
+            this.showModal = true;
+            this.loginForm.reset();
+          } else if (response.code === 401) {
+            this.errorMessage = 'Invalid username or password. Please try again.';
+          } else {
+            this.errorMessage = 'An unexpected error occurred. Please try again later.';
+          }
         },
         error: (error) => {
           console.error('Login error:', error);

@@ -1,49 +1,39 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service'; // Adjust the path based on your project structure
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css'],
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   username: string = '';
+  private authSubscription: Subscription;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {
+    this.authSubscription = this.authService.authState$.subscribe(
+      (authState) => {
+        this.isLoggedIn = authState.isLoggedIn;
+        this.username = authState.username || '';
+      }
+    );
+  }
 
   ngOnInit(): void {
-    this.checkAuthStatus();
+    // Initial auth check is now handled by the subscription
   }
 
-  checkAuthStatus(): void {
-    this.isLoggedIn = this.authService.isLoggedIn();
-    if (this.isLoggedIn) {
-      // Extract the username from the token or store it separately
-      const token = localStorage.getItem('Authorization');
-      if (token) {
-        // Assuming the username is stored in the token payload
-        this.username = this.decodeUsernameFromToken(token);
-      }
-    }
-  }
-
-  decodeUsernameFromToken(token: string): string {
-    // Decode the token to extract the username (if your token contains it)
-    // This is a placeholder, adjust it based on your token structure
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1])); // Decode JWT
-      return payload.username || 'User';
-    } catch (e) {
-      return 'User'; // Fallback username
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
     }
   }
 
   logout(): void {
-    this.authService.logout(); // Clear token
-    this.isLoggedIn = false;
-    this.username = '';
-    this.router.navigate(['/home']); // Redirect to home
+    this.authService.logout();
+    this.router.navigate(['/home']);
   }
 }

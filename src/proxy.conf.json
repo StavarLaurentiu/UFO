@@ -1,0 +1,7 @@
+{
+    "/api": {
+      "target": "http://wd.etsisi.upm.es:10000",
+      "secure": false,
+      "changeOrigin": true
+    }
+}
