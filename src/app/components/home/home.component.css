@@ -1,0 +1,39 @@
+:host {
+    --main-collor: #FAF7F0;
+    --second-collor: #D8D2C2;
+    --third-collor: #B17457;
+    --fourth-collor: #4A4947;
+    font-family: Poppins, sans-serif;
+}
+
+.home-box {
+    background-color: var(--second-collor);
+    margin: 20px;
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 20px;
+    color: var(--fourth-collor);
+    font-size: 18px;
+    position: relative;
+    border: var(--third-collor) thick solid;
+}
+
+.home-box h2 {
+    margin-bottom: 10px;
+    color: var(--fourth-collor);
+}
+
+.home-box ul, 
+.home-box ol {
+    margin-bottom: 10px;
+}
+
+.home-box li {
+    margin-bottom: 10px;
+}
+
+.home-box ul ul {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-left: 10px;
+}

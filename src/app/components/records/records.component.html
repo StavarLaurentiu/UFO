@@ -1,1 +1,35 @@
-<p>records works!</p>
+<div id="rest-of-body">
+    <div id="records-div">
+        <h2 id="records-title">Records</h2>
+        <table id="records-table">
+            <thead>
+                <tr>
+                    <th>Place</th>
+                    <th>User</th>
+                    <th>Points</th>
+                    <th>UFOs</th>
+                    <th>Seconds</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let record of records; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ record.username }}</td>
+                    <td>{{ record.punctuation }}</td>
+                    <td>{{ record.ufos }}</td>
+                    <td>{{ record.disposedTime }}</td>
+                    <td>{{ formatDate(record.recordDate) }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div *ngIf="loading" class="loading">
+            Loading records...
+        </div>
+
+        <div *ngIf="error" class="error">
+            {{ error }}
+        </div>
+    </div>
+</div>

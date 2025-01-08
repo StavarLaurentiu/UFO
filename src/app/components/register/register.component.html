@@ -1,1 +1,67 @@
-<p>register works!</p>
+<div id="rest-of-body">
+    <div id="register-div">
+        <h2 id="register-title">Register</h2>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <div class="register-form-row">
+                <label for="username">Username</label>
+                <div class="input-container">
+                    <input 
+                        type="text" 
+                        id="username" 
+                        formControlName="username"
+                        required>
+                    <span *ngIf="checkingUsername" class="checking">Checking...</span>
+                    <span *ngIf="!checkingUsername && registerForm.get('username')?.dirty" 
+                          [class.available]="usernameAvailable"
+                          [class.taken]="!usernameAvailable">
+                        {{ usernameAvailable ? '✓' : '✗' }}
+                    </span>
+                </div>
+            </div>
+    
+            <div class="register-form-row">
+                <label for="email">Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    formControlName="email"
+                    required>
+            </div>
+    
+            <div class="register-form-row">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    formControlName="password"
+                    required>
+            </div>
+    
+            <div class="register-form-row">
+                <label for="repeatPassword">Repeat Password</label>
+                <input 
+                    type="password" 
+                    id="repeatPassword" 
+                    formControlName="repeatPassword"
+                    required>
+            </div>
+    
+            <span 
+                id="errorMessage" 
+                class="error" 
+                *ngIf="errorMessage">{{ errorMessage }}</span>
+    
+            <button type="submit" [disabled]="!registerForm.valid || !usernameAvailable">Register</button>
+        </form>
+    </div>
+</div>
+
+<div id="successModal" class="modal" [style.display]="showModal ? 'flex' : 'none'">
+    <div class="modal-content">
+        <h2>{{ modalMessage }}</h2>
+        <div class="modal-buttons">
+            <button (click)="redirectToLogin()" class="button">Go to Login</button>
+        </div>
+    </div>
+</div>

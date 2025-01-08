@@ -1,1 +1,18 @@
-<p>game works!</p>
+<div id="rest-of-body">
+    <div id="game">
+        <div id="points">{{ score }}</div>
+        <div id="timer">{{ timeLeft }}s</div>
+        <canvas #gameCanvas></canvas>
+    </div>
+</div>
+
+<div id="endGameModal" class="modal" [style.display]="showEndGameModal ? 'flex' : 'none'">
+    <div class="modal-content">
+        <h2>Time's up!</h2>
+        <p>Your final score is {{ finalScore }}.</p>
+        <div class="modal-buttons">
+            <button (click)="redirectToHome()" class="button">Home</button>
+            <button (click)="playAgain()" class="button">Play Again</button>
+        </div>
+    </div>
+</div>

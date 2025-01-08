@@ -1,0 +1,111 @@
+:host {
+    --main-collor: #FAF7F0;
+    --second-collor: #D8D2C2;
+    --third-collor: #B17457;
+    --fourth-collor: #4A4947;
+    font-family: Poppins, sans-serif;
+}
+
+#rest-of-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#preferences {
+    background-color: var(--second-collor);
+    position: relative;
+    width: 1000px;
+    height: 500px;
+    border-radius: 10px;
+    margin: 20px;
+    margin-top: 100px;
+    border: var(--third-collor) thick solid;
+}
+
+#preferences-title {
+    font-size: 50px;
+    color: var(--fourth-collor);
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.preference-row {
+    margin: 20px 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    margin-bottom: 10px;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--fourth-collor);
+}
+
+span {
+    font-size: 25px;
+    font-weight: 500;
+    color: var(--fourth-collor);
+    margin-top: 10px;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 30px;
+    background: var(--main-collor);
+    outline: none;
+    opacity: 0.8;
+    transition: opacity .15s ease-in-out;
+    margin-top: 10px;
+    width: 500px;
+    border-radius: 100px;
+}
+
+input[type="range"]:hover {
+    opacity: 1;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    background: var(--third-collor);
+    cursor: pointer;
+    border-radius: 100px;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--third-collor);
+    cursor: pointer;
+}
+
+button {
+    background-color: var(--third-collor);
+    color: var(--second-collor);
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #4d2b1b;
+}

@@ -1,1 +1,33 @@
-<p>preferences works!</p>
+<div id="rest-of-body">
+    <div id="preferences">
+        <h2 id="preferences-title">Preferences</h2>
+        <form [formGroup]="preferencesForm" (ngSubmit)="handleAccept()">
+            <div class="preference-row">
+                <label for="ufoSlider">Number of UFOs: </label>
+                <input 
+                    type="range" 
+                    id="ufoSlider" 
+                    formControlName="ufoCount"
+                    min="1" 
+                    max="5" 
+                    (input)="updateUfoCount($event)">
+                <span id="ufoCountDisplay">{{ ufoCount }} 🛸</span>
+            </div>
+
+            <div class="preference-row">
+                <label for="timeSlider">Time in seconds: </label>
+                <input 
+                    type="range" 
+                    id="timeSlider" 
+                    formControlName="timeCount"
+                    min="60" 
+                    max="180" 
+                    step="60"
+                    (input)="updateTimeCount($event)">
+                <span id="timeCountDisplay">{{ timeCount }} seconds</span>
+            </div>
+
+            <button type="submit">Accept</button>
+        </form>
+    </div>
+</div>

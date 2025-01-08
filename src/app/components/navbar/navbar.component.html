@@ -1,1 +1,22 @@
-<p>navbar works!</p>
+<div class="navbar">
+    <a [routerLink]="['/home']">
+      <img src="assets/images/logo.png" alt="UFO" class="logo" />
+    </a>
+    <div class="nav-links center-links">
+      <a [routerLink]="['/home']" routerLinkActive="active" class="nav-link">Home</a>
+      <a [routerLink]="['/preferences']" routerLinkActive="active" class="nav-link">Preferences</a>
+      <a [routerLink]="['/game']" routerLinkActive="active" class="nav-link">Play</a>
+      <a [routerLink]="['/records']" routerLinkActive="active" class="nav-link">Records</a>
+    </div>
+    <div class="nav-links right-links">
+      <ng-container *ngIf="!isLoggedIn">
+        <a [routerLink]="['/register']" routerLinkActive="active" class="nav-link">Register</a>
+        <a [routerLink]="['/login']" routerLinkActive="active" class="nav-link">Login</a>
+      </ng-container>
+      <ng-container *ngIf="isLoggedIn">
+        <span class="nav-link">Hello, {{ username }}!</span>
+        <button class="nav-link logout-button" (click)="logout()">Logout</button>
+      </ng-container>
+    </div>
+  </div>
+  

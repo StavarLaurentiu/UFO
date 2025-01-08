@@ -1,1 +1,42 @@
-<p>login works!</p>
+<div id="rest-of-body">
+    <div id="login-div">
+        <h2 id="login-title">Login</h2>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div class="login-form-row">
+                <label for="username">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    formControlName="username"
+                    required>
+            </div>
+    
+            <div class="login-form-row">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    formControlName="password"
+                    required>
+            </div>
+    
+            <span 
+                id="errorMessage" 
+                class="error" 
+                *ngIf="errorMessage">{{ errorMessage }}</span>
+    
+            <button type="submit" [disabled]="!loginForm.valid">Login</button>
+        </form>
+    </div>
+</div>
+
+<div id="successModal" class="modal" [style.display]="showModal ? 'flex' : 'none'">
+    <div class="modal-content">
+        <h2>Login Successful!</h2>
+        <p>You have been successfully logged in.</p>
+        <div class="modal-buttons">
+            <button (click)="redirectToHome()" class="button">Go to Home</button>
+        </div>
+    </div>
+</div>

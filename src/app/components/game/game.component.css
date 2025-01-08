@@ -1,0 +1,114 @@
+:host {
+    --main-collor: #FAF7F0;
+    --second-collor: #D8D2C2;
+    --third-collor: #B17457;
+    --fourth-collor: #4A4947;
+    font-family: Poppins, sans-serif;
+}
+
+#rest-of-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game {
+    background-color: var(--second-collor);
+    position: relative;
+    width: 1400px;
+    height: 700px;
+    border-radius: 10px;
+    margin: 20px;
+    border: var(--third-collor) thick solid;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#points {
+    position: absolute;
+    bottom: 10px;
+    right: 30px;
+    width: 150px;
+    height: 50px;
+    background-color: var(--third-collor);
+    color: var(--main-collor);
+    text-align: center;
+    font-size: 18pt;
+    padding-top: 20px;
+    border-radius: 20px;
+    z-index: 1;
+}
+
+#timer {
+    position: absolute;
+    bottom: 10px;
+    left: 30px;
+    width: 150px;
+    height: 50px;
+    background-color: var(--third-collor);
+    color: var(--main-collor);
+    text-align: center;
+    font-size: 18pt;
+    padding-top: 20px;
+    border-radius: 20px;
+    z-index: 1;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: var(--main-collor);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+}
+
+.modal-content h2 {
+    font-size: 24px;
+    color: var(--fourth-collor);
+    margin-bottom: 15px;
+}
+
+.modal-content p {
+    color: var(--fourth-collor);
+    margin-bottom: 20px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.button {
+    text-decoration: none;
+    background-color: var(--third-collor);
+    color: var(--main-collor);
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+}
+
+.button:hover {
+    background-color: var(--fourth-collor);
+}
