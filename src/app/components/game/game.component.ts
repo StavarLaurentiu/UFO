@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
+import { AuthService } from '../../services/auth.service';
 import { UFO, Missile } from '../../models/game-objects';
 
 @Component({
@@ -31,14 +32,21 @@ export class GameComponent implements OnInit, OnDestroy {
   timeLeft: number = 60;
   showEndGameModal: boolean = false;
   finalScore: number = 0;
+  
+  // Auth and score recording state
+  isLoggedIn: boolean = false;
+  isScoreRecorded: boolean = false;
+  recordingError: string = '';
 
   constructor(
     private gameService: GameService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     // Load game preferences
     const preferences = this.gameService.loadGamePreferences();
     this.timeLeft = preferences.timeCount;
+    this.isLoggedIn = this.authService.isLoggedIn();
   }
 
   ngOnInit(): void {
@@ -85,6 +93,10 @@ export class GameComponent implements OnInit, OnDestroy {
     this.startGameLoop();
     this.setupControls();
     this.gameMusic.play();
+    
+    // Reset score recording state
+    this.isScoreRecorded = false;
+    this.recordingError = '';
   }
 
   private initializeMissile() {
@@ -207,6 +219,35 @@ export class GameComponent implements OnInit, OnDestroy {
     this.showEndGameModal = true;
     this.gameMusic.pause();
     this.gameMusic.currentTime = 0;
+  }
+
+  recordScore() {
+    if (!this.isLoggedIn || this.isScoreRecorded) {
+      return;
+    }
+
+    const preferences = this.gameService.loadGamePreferences();
+    
+    this.gameService.recordScore(
+      this.finalScore,
+      preferences.ufoCount,
+      preferences.timeCount
+    ).subscribe({
+      next: () => {
+        this.isScoreRecorded = true;
+        this.recordingError = '';
+        console.log('Score recorded successfully!');
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.recordingError = 'Your session has expired. Please log in again.';
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        } else {
+          this.recordingError = 'Failed to record score. Please try again.';
+        }
+      }
+    });
   }
 
   playAgain() {

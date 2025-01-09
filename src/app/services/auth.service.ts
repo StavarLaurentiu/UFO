@@ -31,10 +31,13 @@ export class AuthService {
   constructor(private http: HttpClient) {
     // Initialize auth state from localStorage on service creation
     const token = localStorage.getItem('Authorization');
-    if (token) {
+    const savedUsername = localStorage.getItem('username'); // Add this line
+    
+    if (token && savedUsername) { // Check for both token and username
+      this.currentUsername = savedUsername;
       this.authState.next({
         isLoggedIn: true,
-        username: this.currentUsername,
+        username: savedUsername
       });
     }
   }
@@ -98,9 +101,7 @@ export class AuthService {
     );
   }
 
-  // auth.service.ts
   login(username: string, password: string): Observable<any> {
-    // Change from using template literals to URLSearchParams
     const params = new URLSearchParams();
     params.append('username', username);
     params.append('password', password);
@@ -119,7 +120,8 @@ export class AuthService {
             const token = response.headers.get('Authorization');
             this.saveToken(token);
             this.currentUsername = username;
-
+            localStorage.setItem('username', username); // Add this line
+            
             this.authState.next({
               isLoggedIn: true,
               username: username,
@@ -144,8 +146,8 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('Authorization');
-    this.currentUsername = null; // Clear the username
-    // Update auth state
+    localStorage.removeItem('username'); // Add this line
+    this.currentUsername = null;
     this.authState.next({
       isLoggedIn: false,
       username: null,

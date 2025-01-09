@@ -10,9 +10,23 @@
     <div class="modal-content">
         <h2>Time's up!</h2>
         <p>Your final score is {{ finalScore }}.</p>
+        
+        <!-- Show error message if there is one -->
+        <p *ngIf="recordingError" class="error-message">{{ recordingError }}</p>
+        
+        <!-- Show success message if score was recorded -->
+        <p *ngIf="isScoreRecorded" class="success-message">Score recorded successfully!</p>
+        
         <div class="modal-buttons">
             <button (click)="redirectToHome()" class="button">Home</button>
             <button (click)="playAgain()" class="button">Play Again</button>
+            <!-- Show record button only if user is logged in and score hasn't been recorded yet -->
+            <button 
+                *ngIf="isLoggedIn && !isScoreRecorded" 
+                (click)="recordScore()" 
+                class="button">
+                Record Score
+            </button>
         </div>
     </div>
 </div>

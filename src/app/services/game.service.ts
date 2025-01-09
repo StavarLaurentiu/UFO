@@ -1,64 +1,100 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
-export interface GameState {
-  score: number;
-  timeLeft: number;
-  isGameOver: boolean;
+interface GamePreferences {
+  ufoCount: number;
+  timeCount: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
-  private gameState = new BehaviorSubject<GameState>({
-    score: 0,
-    timeLeft: 60,
-    isGameOver: false
-  });
+  private apiUrl = environment.apiUrl;
+  private readonly DEFAULT_UFO_COUNT = 3;
+  private readonly DEFAULT_TIME_COUNT = 60;
+  private readonly STORAGE_KEY = 'gamePreferences';
 
-  constructor() { }
+  constructor(private http: HttpClient) {}
 
-  getGameState() {
-    return this.gameState.asObservable();
+  loadGamePreferences(): GamePreferences {
+    const storedPreferences = localStorage.getItem(this.STORAGE_KEY);
+    if (storedPreferences) {
+      return JSON.parse(storedPreferences);
+    }
+    
+    // Return default values if no preferences are stored
+    return {
+      ufoCount: this.DEFAULT_UFO_COUNT,
+      timeCount: this.DEFAULT_TIME_COUNT
+    };
   }
 
-  updateScore(newScore: number) {
-    const currentState = this.gameState.value;
-    this.gameState.next({ ...currentState, score: newScore });
+  saveGamePreferences(preferences: GamePreferences): void {
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(preferences));
   }
 
-  updateTime(newTime: number) {
-    const currentState = this.gameState.value;
-    this.gameState.next({ ...currentState, timeLeft: newTime });
+  calculateFinalScore(score: number, ufoCount: number, timeCount: number): number {
+    // Base multiplier starts at 1
+    let multiplier = 1;
+
+    // Adjust multiplier based on UFO count
+    if (ufoCount > this.DEFAULT_UFO_COUNT) {
+      multiplier += (ufoCount - this.DEFAULT_UFO_COUNT) * 0.1;
+    }
+
+    // Adjust multiplier based on time
+    if (timeCount < this.DEFAULT_TIME_COUNT) {
+      multiplier += (this.DEFAULT_TIME_COUNT - timeCount) * 0.01;
+    }
+
+    // Calculate and round the final score
+    return Math.round(score * multiplier);
   }
 
-  setGameOver(finalScore: number) {
-    const currentState = this.gameState.value;
-    this.gameState.next({ ...currentState, isGameOver: true, score: finalScore });
-  }
+  recordScore(score: number, ufos: number, disposedTime: number): Observable<any> {
+    const token = localStorage.getItem('Authorization');
+    
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
 
-  resetGame() {
-    const preferences = this.loadGamePreferences();
-    this.gameState.next({
-      score: 0,
-      timeLeft: preferences.timeCount,
-      isGameOver: false
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': token
     });
+
+    const payload = {
+      punctuation: score,
+      ufos: ufos,
+      disposedTime: disposedTime
+    };
+
+    return this.http.post(`${this.apiUrl}/records`, payload, { headers });
   }
 
-  loadGamePreferences() {
-    const stored = localStorage.getItem('gamePreferences');
-    return stored ? JSON.parse(stored) : { ufoCount: 1, timeCount: 60 };
+  // Method to get default values
+  getDefaultValues(): { ufoCount: number; timeCount: number } {
+    return {
+      ufoCount: this.DEFAULT_UFO_COUNT,
+      timeCount: this.DEFAULT_TIME_COUNT
+    };
   }
 
-  calculateFinalScore(score: number, ufoCount: number, gameTime: number): number {
-    // Divide by minutes played
-    let finalScore = score / (gameTime / 60);
-    
-    // Subtract 50 points per extra UFO
-    finalScore -= ((ufoCount - 1) * 50);
-    
-    return Math.max(0, Math.floor(finalScore));
+  // Method to validate preferences
+  validatePreferences(preferences: GamePreferences): boolean {
+    return (
+      preferences.ufoCount >= 1 && 
+      preferences.ufoCount <= 5 &&
+      preferences.timeCount >= 30 && 
+      preferences.timeCount <= 120
+    );
+  }
+
+  // Method to reset preferences to default
+  resetPreferences(): void {
+    localStorage.removeItem(this.STORAGE_KEY);
   }
 }
