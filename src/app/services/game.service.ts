@@ -9,7 +9,7 @@ interface GamePreferences {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GameService {
   private apiUrl = environment.apiUrl;
@@ -24,11 +24,11 @@ export class GameService {
     if (storedPreferences) {
       return JSON.parse(storedPreferences);
     }
-    
+
     // Return default values if no preferences are stored
     return {
       ufoCount: this.DEFAULT_UFO_COUNT,
-      timeCount: this.DEFAULT_TIME_COUNT
+      timeCount: this.DEFAULT_TIME_COUNT,
     };
   }
 
@@ -36,40 +36,54 @@ export class GameService {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(preferences));
   }
 
-  calculateFinalScore(score: number, ufoCount: number, timeCount: number): number {
-    // Base multiplier starts at 1
-    let multiplier = 1;
-
-    // Adjust multiplier based on UFO count
-    if (ufoCount > this.DEFAULT_UFO_COUNT) {
-      multiplier += (ufoCount - this.DEFAULT_UFO_COUNT) * 0.1;
+  calculateFinalScore(
+    score: number,
+    ufoCount: number,
+    timeCount: number
+  ): number {
+    // Calculate time-based division factor
+    let timeDivisor = 1;
+    if (timeCount === 120) {
+      timeDivisor = 2;
+    } else if (timeCount === 180) {
+      timeDivisor = 3;
     }
 
-    // Adjust multiplier based on time
-    if (timeCount < this.DEFAULT_TIME_COUNT) {
-      multiplier += (this.DEFAULT_TIME_COUNT - timeCount) * 0.01;
-    }
+    // Calculate UFO penalty (50 points per extra UFO beyond 1)
+    const ufoDeduction = ufoCount > 1 ? (ufoCount - 1) * 50 : 0;
 
-    // Calculate and round the final score
-    return Math.round(score * multiplier);
+    // Calculate final score: (base score / time divisor) - UFO penalty
+    const finalScore = Math.round(score / timeDivisor - ufoDeduction);
+
+    // Log the calculations for debugging
+    console.log('Time Divisor:', timeDivisor);
+    console.log('UFO Deduction:', ufoDeduction);
+    console.log('Base Score:', score);
+    console.log('Final Score:', finalScore);
+
+    return finalScore;
   }
 
-  recordScore(score: number, ufos: number, disposedTime: number): Observable<any> {
+  recordScore(
+    score: number,
+    ufos: number,
+    disposedTime: number
+  ): Observable<any> {
     const token = localStorage.getItem('Authorization');
-    
+
     if (!token) {
       throw new Error('No authentication token found');
     }
 
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': token
+      Authorization: token,
     });
 
     const payload = {
       punctuation: score,
       ufos: ufos,
-      disposedTime: disposedTime
+      disposedTime: disposedTime,
     };
 
     return this.http.post(`${this.apiUrl}/records`, payload, { headers });
@@ -79,16 +93,16 @@ export class GameService {
   getDefaultValues(): { ufoCount: number; timeCount: number } {
     return {
       ufoCount: this.DEFAULT_UFO_COUNT,
-      timeCount: this.DEFAULT_TIME_COUNT
+      timeCount: this.DEFAULT_TIME_COUNT,
     };
   }
 
   // Method to validate preferences
   validatePreferences(preferences: GamePreferences): boolean {
     return (
-      preferences.ufoCount >= 1 && 
+      preferences.ufoCount >= 1 &&
       preferences.ufoCount <= 5 &&
-      preferences.timeCount >= 30 && 
+      preferences.timeCount >= 30 &&
       preferences.timeCount <= 120
     );
   }
