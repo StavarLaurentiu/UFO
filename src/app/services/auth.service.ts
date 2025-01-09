@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   HttpClient,
   HttpErrorResponse,
+  HttpHeaders,
 } from '@angular/common/http';
 import { Observable, throwError, of, BehaviorSubject } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -18,11 +19,11 @@ interface AuthState {
 export class AuthService {
   private apiUrl = environment.apiUrl;
   currentUsername: string | null = null; // Store the username in memory
-  
+
   // Add BehaviorSubject for auth state
   private authState = new BehaviorSubject<AuthState>({
     isLoggedIn: false,
-    username: null
+    username: null,
   });
 
   authState$ = this.authState.asObservable();
@@ -33,7 +34,7 @@ export class AuthService {
     if (token) {
       this.authState.next({
         isLoggedIn: true,
-        username: this.currentUsername
+        username: this.currentUsername,
       });
     }
   }
@@ -72,7 +73,7 @@ export class AuthService {
     const cleanUserData = {
       username: userData.username,
       email: userData.email,
-      password: userData.password
+      password: userData.password,
     };
 
     console.log('AuthService: Starting registration process');
@@ -80,7 +81,7 @@ export class AuthService {
     console.log('AuthService: Clean user data being sent:', cleanUserData);
 
     return this.http.post(`${this.apiUrl}/users`, cleanUserData).pipe(
-      map(response => {
+      map((response) => {
         console.log('AuthService: Registration HTTP response:', response);
         return { success: true };
       }),
@@ -90,36 +91,51 @@ export class AuthService {
           statusText: error.statusText,
           error: error.error,
           message: error.message,
-          url: error.url
+          url: error.url,
         });
         return throwError(() => error);
       })
     );
   }
 
+  // auth.service.ts
   login(username: string, password: string): Observable<any> {
-    const url = `${this.apiUrl}/users/login?username=${username}&password=${password}`;
-    return this.http.get(url, { observe: 'response' }).pipe(
-      map((response: any) => {
-        if (response.status === 200) {
-          const token = response.headers.get('Authorization');
-          this.saveToken(token);
-          this.currentUsername = username; // Save the username
-          
-          // Update auth state
-          this.authState.next({
-            isLoggedIn: true,
-            username: username
-          });
-          return { success: true, code: response.status };
-        }
+    // Change from using template literals to URLSearchParams
+    const params = new URLSearchParams();
+    params.append('username', username);
+    params.append('password', password);
 
-        return { success: false, code: response.status };
-      }),
-      catchError((error) => {
-        return of({ success: false, message: 'Login failed', code: error.status });
+    const url = `${this.apiUrl}/users/login`;
+    return this.http
+      .get(url + '?' + params.toString(), {
+        observe: 'response',
+        headers: new HttpHeaders({
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }),
       })
-    );
+      .pipe(
+        map((response: any) => {
+          if (response.status === 200) {
+            const token = response.headers.get('Authorization');
+            this.saveToken(token);
+            this.currentUsername = username;
+
+            this.authState.next({
+              isLoggedIn: true,
+              username: username,
+            });
+            return { success: true, code: response.status };
+          }
+          return { success: false, code: response.status };
+        }),
+        catchError((error) => {
+          return of({
+            success: false,
+            message: 'Login failed',
+            code: error.status,
+          });
+        })
+      );
   }
 
   saveToken(token: string): void {
@@ -132,7 +148,7 @@ export class AuthService {
     // Update auth state
     this.authState.next({
       isLoggedIn: false,
-      username: null
+      username: null,
     });
   }
 }
