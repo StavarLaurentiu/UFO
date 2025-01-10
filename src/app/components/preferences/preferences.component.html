@@ -1,7 +1,14 @@
 <div id="rest-of-body">
+    <!-- Alert component -->
+    <div *ngIf="alertInfo.show" class="alert-container">
+        <div [ngClass]="{'alert-success': alertInfo.type === 'success', 'alert-error': alertInfo.type === 'error'}">
+            {{ alertInfo.message }}
+        </div>
+    </div>
+
     <div id="preferences">
         <h2 id="preferences-title">Preferences</h2>
-        <form [formGroup]="preferencesForm" (ngSubmit)="handleAccept()">
+        <form [formGroup]="preferencesForm">
             <div class="preference-row">
                 <label for="ufoSlider">Number of UFOs: </label>
                 <input 
@@ -27,7 +34,13 @@
                 <span id="timeCountDisplay">{{ timeCount }} seconds</span>
             </div>
 
-            <button type="submit">Accept</button>
+            <div class="button-group">
+                <button type="button" (click)="saveLocal()">Save local</button>
+                <button type="button" (click)="getLocal()">Get local</button>
+                <button type="button" [disabled]="!isLoggedIn" (click)="saveServer()">Save on server</button>
+                <button type="button" [disabled]="!isLoggedIn" (click)="getFromServer()">Get from server</button>
+                <button type="button" (click)="handleAccept()">Accept</button>
+            </div>
         </form>
     </div>
 </div>

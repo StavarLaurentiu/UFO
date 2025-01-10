@@ -1,7 +1,10 @@
+// preferences.service.ts
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
-export interface GamePreferences {
+export interface Preferences {
   ufoCount: number;
   timeCount: number;
 }
@@ -10,30 +13,42 @@ export interface GamePreferences {
   providedIn: 'root'
 })
 export class PreferencesService {
-  private defaultPreferences: GamePreferences = {
-    ufoCount: 1,
-    timeCount: 60
-  };
+  private apiUrl = 'http://localhost:10000'; // Node.js server URL
 
-  private preferences = new BehaviorSubject<GamePreferences>(this.loadPreferences());
+  constructor(private http: HttpClient) {}
 
-  constructor() { }
-
-  loadPreferences(): GamePreferences {
-    const stored = localStorage.getItem('gamePreferences');
-    return stored ? JSON.parse(stored) : this.defaultPreferences;
+  // Local Storage Methods
+  saveLocalPreferences(preferences: Preferences): void {
+    localStorage.setItem('preferences', JSON.stringify(preferences));
   }
 
-  savePreferences(preferences: GamePreferences): void {
-    localStorage.setItem('gamePreferences', JSON.stringify(preferences));
-    this.preferences.next(preferences);
+  getLocalPreferences(): Preferences {
+    const stored = localStorage.getItem('preferences');
+    return stored ? JSON.parse(stored) : { ufoCount: 1, timeCount: 60 };
   }
 
-  getPreferences() {
-    return this.preferences.asObservable();
+  // Server Methods
+  saveServerPreferences(username: string, preferences: Preferences): Observable<any> {
+    const token = localStorage.getItem('Authorization');
+    const headers = new HttpHeaders().set('Authorization', token || '');
+
+    return this.http.patch(
+      `${this.apiUrl}/users/${username}/options`,
+      {
+        numufos: preferences.ufoCount,
+        time: preferences.timeCount
+      },
+      { headers }
+    );
   }
 
-  getCurrentPreferences(): GamePreferences {
-    return this.preferences.value;
+  getServerPreferences(username: string): Observable<any> {
+    const token = localStorage.getItem('Authorization');
+    const headers = new HttpHeaders().set('Authorization', token || '');
+
+    return this.http.get(
+      `${this.apiUrl}/users/${username}/options`,
+      { headers }
+    );
   }
 }
