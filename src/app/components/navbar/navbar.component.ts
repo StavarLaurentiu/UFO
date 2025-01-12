@@ -22,9 +22,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     );
   }
 
-  ngOnInit(): void {
-    // Initial auth check is now handled by the subscription
-  }
+  ngOnInit(): void {}
 
   ngOnDestroy(): void {
     if (this.authSubscription) {

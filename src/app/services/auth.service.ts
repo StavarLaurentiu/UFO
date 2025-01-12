@@ -18,7 +18,7 @@ interface AuthState {
 })
 export class AuthService {
   private apiUrl = environment.apiUrl;
-  currentUsername: string | null = null; // Store the username in memory
+  currentUsername: string | null = null;
 
   // Add BehaviorSubject for auth state
   private authState = new BehaviorSubject<AuthState>({
@@ -31,13 +31,14 @@ export class AuthService {
   constructor(private http: HttpClient) {
     // Initialize auth state from localStorage on service creation
     const token = localStorage.getItem('Authorization');
-    const savedUsername = localStorage.getItem('username'); // Add this line
-    
-    if (token && savedUsername) { // Check for both token and username
+    const savedUsername = localStorage.getItem('username');
+
+    // Check for both token and username
+    if (token && savedUsername) {
       this.currentUsername = savedUsername;
       this.authState.next({
         isLoggedIn: true,
-        username: savedUsername
+        username: savedUsername,
       });
     }
   }
@@ -120,8 +121,8 @@ export class AuthService {
             const token = response.headers.get('Authorization');
             this.saveToken(token);
             this.currentUsername = username;
-            localStorage.setItem('username', username); // Add this line
-            
+            localStorage.setItem('username', username);
+
             this.authState.next({
               isLoggedIn: true,
               username: username,
@@ -146,7 +147,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('Authorization');
-    localStorage.removeItem('username'); // Add this line
+    localStorage.removeItem('username');
     this.currentUsername = null;
     this.authState.next({
       isLoggedIn: false,

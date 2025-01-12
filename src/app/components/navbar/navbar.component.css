@@ -11,7 +11,7 @@
 .navbar {
     background-color: var(--third-collor);
     margin: 0;
-    padding: 10px 40px; /* Added horizontal padding */
+    padding: 10px 40px;
     justify-content: space-between;
     display: flex;
     align-items: center;
