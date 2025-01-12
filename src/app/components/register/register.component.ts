@@ -76,17 +76,24 @@ export class RegisterComponent implements OnInit {
   onSubmit(): void {
     console.log('RegisterComponent: Submit button clicked');
     console.log('RegisterComponent: Form valid:', this.registerForm.valid);
-    console.log('RegisterComponent: Username available:', this.usernameAvailable);
-    console.log('RegisterComponent: Complete form value:', this.registerForm.value);
+    console.log(
+      'RegisterComponent: Username available:',
+      this.usernameAvailable
+    );
+    console.log(
+      'RegisterComponent: Complete form value:',
+      this.registerForm.value
+    );
 
     if (this.registerForm.valid && this.usernameAvailable) {
-      const { username, email, password, repeatPassword } = this.registerForm.value;
-      
-      console.log('RegisterComponent: Extracted form values:', { 
-        username, 
-        email, 
-        password: '[MASKED]', 
-        repeatPassword: '[MASKED]' 
+      const { username, email, password, repeatPassword } =
+        this.registerForm.value;
+
+      console.log('RegisterComponent: Extracted form values:', {
+        username,
+        email,
+        password: '[MASKED]',
+        repeatPassword: '[MASKED]',
       });
 
       if (password !== repeatPassword) {
@@ -98,71 +105,67 @@ export class RegisterComponent implements OnInit {
       const userData = {
         username: username,
         email: email,
-        password: password
+        password: password,
       };
 
-      console.log('RegisterComponent: Calling authService.register with userData:', {
-        ...userData,
-        password: '[MASKED]'
-      });
+      console.log(
+        'RegisterComponent: Calling authService.register with userData:',
+        {
+          ...userData,
+          password: '[MASKED]',
+        }
+      );
 
       this.authService.register(userData).subscribe({
         next: (response) => {
-          console.log('RegisterComponent: Registration success response:', response);
+          console.log(
+            'RegisterComponent: Registration success response:',
+            response
+          );
           this.modalMessage = 'Registration successful! You can now log in.';
           this.showModal = true;
           this.registerForm.reset();
           console.log('RegisterComponent: Form reset and modal shown');
-          
+
           setTimeout(() => {
             console.log('RegisterComponent: Initiating redirect to login');
             this.redirectToLogin();
           }, 2000);
         },
         error: (error) => {
-          console.error('RegisterComponent: Registration error full details:', error);
+          console.error(
+            'RegisterComponent: Registration error full details:',
+            error
+          );
           console.error('RegisterComponent: Error type:', typeof error);
           console.error('RegisterComponent: Error keys:', Object.keys(error));
-          this.errorMessage = 'Registration failed: ' + (error.error?.message || error.message || 'Unknown error');
-          console.error('RegisterComponent: Set error message to:', this.errorMessage);
-        }
+          this.errorMessage =
+            'Registration failed: ' +
+            (error.error?.message || error.message || 'Unknown error');
+          console.error(
+            'RegisterComponent: Set error message to:',
+            this.errorMessage
+          );
+        },
       });
     } else {
       console.log('RegisterComponent: Form validation failed');
       console.log('RegisterComponent: Form errors:', this.registerForm.errors);
-      console.log('RegisterComponent: Username field errors:', this.registerForm.get('username')?.errors);
-      
+      console.log(
+        'RegisterComponent: Username field errors:',
+        this.registerForm.get('username')?.errors
+      );
+
       if (this.registerForm.get('username')?.errors?.['maxlength']) {
         this.errorMessage = 'Username must be maximum 8 characters long';
       } else {
         this.errorMessage = 'Please fill in all required fields correctly';
       }
-      console.log('RegisterComponent: Set error message to:', this.errorMessage);
+      console.log(
+        'RegisterComponent: Set error message to:',
+        this.errorMessage
+      );
     }
-  }
-
-  // Add this method to your RegisterComponent
-  testDirectPost(): void {
-    console.log('Testing direct HTTP post');
-    const userData = {
-      username: this.registerForm.get('username')?.value,
-      email: this.registerForm.get('email')?.value,
-      password: this.registerForm.get('password')?.value
-    };
-
-    console.log('Direct POST - userData:', {
-      ...userData,
-      password: '[MASKED]'
-    });
-
-    this.http.post('http://wd.etsisi.upm.es:10000/users', userData).subscribe({
-      next: (response) => {
-        console.log('Direct POST - Success response:', response);
-      },
-      error: (error) => {
-        console.error('Direct POST - Error:', error);
-      }
-    });
   }
 
   redirectToLogin(): void {

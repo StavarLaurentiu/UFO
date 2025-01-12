@@ -14,7 +14,7 @@ interface AlertInfo {
 @Component({
   selector: 'app-preferences',
   templateUrl: './preferences.component.html',
-  styleUrls: ['./preferences.component.css']
+  styleUrls: ['./preferences.component.css'],
 })
 export class PreferencesComponent implements OnInit {
   preferencesForm: FormGroup;
@@ -24,7 +24,7 @@ export class PreferencesComponent implements OnInit {
   alertInfo: AlertInfo = {
     show: false,
     message: '',
-    type: 'success'
+    type: 'success',
   };
 
   constructor(
@@ -36,7 +36,7 @@ export class PreferencesComponent implements OnInit {
   ) {
     this.preferencesForm = this.fb.group({
       ufoCount: [1],
-      timeCount: [60]
+      timeCount: [60],
     });
   }
 
@@ -62,7 +62,7 @@ export class PreferencesComponent implements OnInit {
     this.alertInfo = {
       show: true,
       message,
-      type
+      type,
     };
 
     // Hide alert after 3 seconds
@@ -74,7 +74,7 @@ export class PreferencesComponent implements OnInit {
   saveLocal(): void {
     const preferences = {
       ufoCount: this.ufoCount,
-      timeCount: this.timeCount
+      timeCount: this.timeCount,
     };
     this.preferencesService.saveLocalPreferences(preferences);
     this.showAlert('Preferences saved locally', 'success');
@@ -82,7 +82,10 @@ export class PreferencesComponent implements OnInit {
 
   saveServer(): void {
     if (!this.isLoggedIn) {
-      this.showAlert('You must be logged in to save preferences to server', 'error');
+      this.showAlert(
+        'You must be logged in to save preferences to server',
+        'error'
+      );
       return;
     }
 
@@ -94,13 +97,19 @@ export class PreferencesComponent implements OnInit {
 
     const preferences = {
       ufoCount: this.ufoCount,
-      timeCount: this.timeCount
+      timeCount: this.timeCount,
     };
 
-    this.preferencesService.saveServerPreferences(username, preferences)
+    this.preferencesService
+      .saveServerPreferences(username, preferences)
       .subscribe({
-        next: () => this.showAlert('Preferences saved to server successfully', 'success'),
-        error: (error) => this.showAlert('Error saving preferences to server: ' + error.message, 'error')
+        next: () =>
+          this.showAlert('Preferences saved to server successfully', 'success'),
+        error: (error) =>
+          this.showAlert(
+            'Error saving preferences to server: ' + error.message,
+            'error'
+          ),
       });
   }
 
@@ -110,14 +119,17 @@ export class PreferencesComponent implements OnInit {
     this.timeCount = preferences.timeCount;
     this.preferencesForm.patchValue({
       ufoCount: this.ufoCount,
-      timeCount: this.timeCount
+      timeCount: this.timeCount,
     });
     this.showAlert('Preferences loaded from local storage', 'success');
   }
 
   getFromServer(): void {
     if (!this.isLoggedIn) {
-      this.showAlert('You must be logged in to get preferences from server', 'error');
+      this.showAlert(
+        'You must be logged in to get preferences from server',
+        'error'
+      );
       return;
     }
 
@@ -127,28 +139,31 @@ export class PreferencesComponent implements OnInit {
       return;
     }
 
-    this.preferencesService.getServerPreferences(username)
-      .subscribe({
-        next: (data) => {
-          this.ufoCount = data.ufos;
-          this.timeCount = data.disposedTime;
-          this.preferencesForm.patchValue({
-            ufoCount: this.ufoCount,
-            timeCount: this.timeCount
-          });
-          this.showAlert('Preferences loaded from server', 'success');
-        },
-        error: (error) => this.showAlert('Error getting preferences from server: ' + error.message, 'error')
-      });
+    this.preferencesService.getServerPreferences(username).subscribe({
+      next: (data) => {
+        this.ufoCount = data.ufos;
+        this.timeCount = data.disposedTime;
+        this.preferencesForm.patchValue({
+          ufoCount: this.ufoCount,
+          timeCount: this.timeCount,
+        });
+        this.showAlert('Preferences loaded from server', 'success');
+      },
+      error: (error) =>
+        this.showAlert(
+          'Error getting preferences from server: ' + error.message,
+          'error'
+        ),
+    });
   }
 
   handleAccept(): void {
     // Save current preferences to game service
     const gamePreferences = {
       ufoCount: this.ufoCount,
-      timeCount: this.timeCount
+      timeCount: this.timeCount,
     };
-    
+
     this.gameService.saveGamePreferences(gamePreferences);
     this.router.navigate(['/game']);
   }

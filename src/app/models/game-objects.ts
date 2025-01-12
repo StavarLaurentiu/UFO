@@ -103,15 +103,7 @@ export class Missile {
   private _verticalPosition: number;
   private _horizontalPosition: number;
   private _width: number = 60;
-
-  get width(): number {
-    return this._width;
-  }
   private _height: number = 80;
-
-  get height(): number {
-    return this._height;
-  }
   private pulled: boolean = false;
   private launchPid: number | null = null;
 
@@ -123,6 +115,14 @@ export class Missile {
   ) {
     this._verticalPosition = ctx.canvas.height - this.height - 10;
     this._horizontalPosition = ctx.canvas.width / 2;
+  }
+
+  get width(): number {
+    return this._width;
+  }
+
+  get height(): number {
+    return this._height;
   }
 
   get verticalPosition(): number {
@@ -164,28 +164,27 @@ export class Missile {
 
   launch() {
     if (this.pulled) return;
-    
+
     this.pulled = true;
     this.launchPid = window.setInterval(() => {
-        // Check if missile goes off screen
-        if (this._verticalPosition <= 0) {  // Changed condition to check top of screen
-            this.reset();
-            return -1; // Missed
-        }
-        this._verticalPosition -= this.verticalStep;
-        return 0; // Continue moving
+      // Check if missile goes off screen
+      if (this._verticalPosition <= 0) {
+        this.reset();
+        return -1; // Missed
+      }
+      this._verticalPosition -= this.verticalStep;
+      return 0; // Continue moving
     }, 10);
   }
 
   reset() {
-      if (this.launchPid) {
-          clearInterval(this.launchPid);
-          this.launchPid = null;
-      }
-      this.pulled = false;
-      this._verticalPosition = this.ctx.canvas.height - this.height - 10;
+    if (this.launchPid) {
+      clearInterval(this.launchPid);
+      this.launchPid = null;
+    }
+    this.pulled = false;
+    this._verticalPosition = this.ctx.canvas.height - this.height - 10;
   }
-    
 
   isPulled(): boolean {
     return this.pulled;

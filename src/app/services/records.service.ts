@@ -5,12 +5,12 @@ import { Record } from '../models/record';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RecordsService {
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getRecords(): Observable<Record[]> {
     return this.http.get<Record[]>(`${this.apiUrl}/records`);

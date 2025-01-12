@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  OnDestroy,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
 import { AuthService } from '../../services/auth.service';
@@ -7,12 +13,12 @@ import { UFO, Missile } from '../../models/game-objects';
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
-  styleUrls: ['./game.component.css']
+  styleUrls: ['./game.component.css'],
 })
 export class GameComponent implements OnInit, OnDestroy {
-  @ViewChild('gameCanvas', { static: true }) 
+  @ViewChild('gameCanvas', { static: true })
   private canvas!: ElementRef<HTMLCanvasElement>;
-  
+
   private ctx!: CanvasRenderingContext2D;
   private missile!: Missile;
   private ufos: UFO[] = [];
@@ -32,7 +38,7 @@ export class GameComponent implements OnInit, OnDestroy {
   timeLeft: number = 60;
   showEndGameModal: boolean = false;
   finalScore: number = 0;
-  
+
   // Auth and score recording state
   isLoggedIn: boolean = false;
   isScoreRecorded: boolean = false;
@@ -79,9 +85,9 @@ export class GameComponent implements OnInit, OnDestroy {
 
     // Wait for images to load
     await Promise.all([
-      new Promise(resolve => this.missileImage.onload = resolve),
-      new Promise(resolve => this.ufoImage.onload = resolve),
-      new Promise(resolve => this.explosionImage.onload = resolve)
+      new Promise((resolve) => (this.missileImage.onload = resolve)),
+      new Promise((resolve) => (this.ufoImage.onload = resolve)),
+      new Promise((resolve) => (this.explosionImage.onload = resolve)),
     ]);
   }
 
@@ -93,7 +99,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.startGameLoop();
     this.setupControls();
     this.gameMusic.play();
-    
+
     // Reset score recording state
     this.isScoreRecorded = false;
     this.recordingError = '';
@@ -105,7 +111,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private initializeUFOs(count: number) {
     const usedPositions = new Set<number>();
-    
+
     for (let i = 0; i < count; i++) {
       let position = Math.floor(Math.random() * 5) + 1;
       while (usedPositions.has(position)) {
@@ -113,7 +119,12 @@ export class GameComponent implements OnInit, OnDestroy {
       }
       usedPositions.add(position);
 
-      const ufo = new UFO(position, this.ctx, this.ufoImage, this.explosionImage);
+      const ufo = new UFO(
+        position,
+        this.ctx,
+        this.ufoImage,
+        this.explosionImage
+      );
       this.ufos.push(ufo);
       ufo.launch();
     }
@@ -134,13 +145,18 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private update() {
     // Clear canvas
-    this.ctx.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+    this.ctx.clearRect(
+      0,
+      0,
+      this.canvas.nativeElement.width,
+      this.canvas.nativeElement.height
+    );
 
     // Draw missile
     this.missile.draw();
 
     // Draw UFOs and check collisions
-    this.ufos.forEach(ufo => {
+    this.ufos.forEach((ufo) => {
       ufo.draw();
       if (this.missile.isPulled() && ufo.checkCollision(this.missile)) {
         this.handleCollision(ufo);
@@ -205,7 +221,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     // Stop UFOs
-    this.ufos.forEach(ufo => ufo.stop());
+    this.ufos.forEach((ufo) => ufo.stop());
 
     // Calculate final score
     const preferences = this.gameService.loadGamePreferences();
@@ -227,27 +243,26 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     const preferences = this.gameService.loadGamePreferences();
-    
-    this.gameService.recordScore(
-      this.finalScore,
-      preferences.ufoCount,
-      preferences.timeCount
-    ).subscribe({
-      next: () => {
-        this.isScoreRecorded = true;
-        this.recordingError = '';
-        console.log('Score recorded successfully!');
-      },
-      error: (error) => {
-        if (error.status === 401) {
-          this.recordingError = 'Your session has expired. Please log in again.';
-          this.authService.logout();
-          this.router.navigate(['/login']);
-        } else {
-          this.recordingError = 'Failed to record score. Please try again.';
-        }
-      }
-    });
+
+    this.gameService
+      .recordScore(this.finalScore, preferences.ufoCount, preferences.timeCount)
+      .subscribe({
+        next: () => {
+          this.isScoreRecorded = true;
+          this.recordingError = '';
+          console.log('Score recorded successfully!');
+        },
+        error: (error) => {
+          if (error.status === 401) {
+            this.recordingError =
+              'Your session has expired. Please log in again.';
+            this.authService.logout();
+            this.router.navigate(['/login']);
+          } else {
+            this.recordingError = 'Failed to record score. Please try again.';
+          }
+        },
+      });
   }
 
   playAgain() {
@@ -270,11 +285,11 @@ export class GameComponent implements OnInit, OnDestroy {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
-    this.ufos.forEach(ufo => ufo.stop());
-    
+    this.ufos.forEach((ufo) => ufo.stop());
+
     this.gameMusic.pause();
     this.gameMusic.currentTime = 0;
-    
+
     document.removeEventListener('keydown', this.setupControls);
   }
 }

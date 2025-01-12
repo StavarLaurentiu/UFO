@@ -176,7 +176,6 @@ button:disabled {
     background-color: var(--fourth-collor);
 }
 
-/* Added styles for validation feedback */
 input.ng-invalid.ng-touched {
     border-color: red;
 }

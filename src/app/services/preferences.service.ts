@@ -1,8 +1,6 @@
-// preferences.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
 
 export interface Preferences {
   ufoCount: number;
@@ -10,7 +8,7 @@ export interface Preferences {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PreferencesService {
   private apiUrl = 'http://localhost:10000'; // Node.js server URL
@@ -28,7 +26,10 @@ export class PreferencesService {
   }
 
   // Server Methods
-  saveServerPreferences(username: string, preferences: Preferences): Observable<any> {
+  saveServerPreferences(
+    username: string,
+    preferences: Preferences
+  ): Observable<any> {
     const token = localStorage.getItem('Authorization');
     const headers = new HttpHeaders().set('Authorization', token || '');
 
@@ -36,7 +37,7 @@ export class PreferencesService {
       `${this.apiUrl}/users/${username}/options`,
       {
         numufos: preferences.ufoCount,
-        time: preferences.timeCount
+        time: preferences.timeCount,
       },
       { headers }
     );
@@ -46,9 +47,8 @@ export class PreferencesService {
     const token = localStorage.getItem('Authorization');
     const headers = new HttpHeaders().set('Authorization', token || '');
 
-    return this.http.get(
-      `${this.apiUrl}/users/${username}/options`,
-      { headers }
-    );
+    return this.http.get(`${this.apiUrl}/users/${username}/options`, {
+      headers,
+    });
   }
 }

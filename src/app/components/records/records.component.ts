@@ -5,14 +5,14 @@ import { Record } from '../../models/record';
 @Component({
   selector: 'app-records',
   templateUrl: './records.component.html',
-  styleUrls: ['./records.component.css']
+  styleUrls: ['./records.component.css'],
 })
 export class RecordsComponent implements OnInit {
   records: Record[] = [];
   loading: boolean = true;
   error: string | null = null;
 
-  constructor(private recordsService: RecordsService) { }
+  constructor(private recordsService: RecordsService) {}
 
   ngOnInit(): void {
     this.loadRecords();
@@ -31,7 +31,7 @@ export class RecordsComponent implements OnInit {
         this.error = 'Failed to load records. Please try again later.';
         this.loading = false;
         console.error('Error loading records:', err);
-      }
+      },
     });
   }
 
@@ -45,7 +45,7 @@ export class RecordsComponent implements OnInit {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      hour12: false
+      hour12: false,
     });
   }
 }
