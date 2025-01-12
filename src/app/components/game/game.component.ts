@@ -257,7 +257,11 @@ export class GameComponent implements OnInit, OnDestroy {
             this.recordingError =
               'Your session has expired. Please log in again.';
             this.authService.logout();
-            this.router.navigate(['/login']);
+
+            // Redirect to login page after 3 seconds
+            setTimeout(() => {
+              this.router.navigate(['/login']);
+            }, 3000);
           } else {
             this.recordingError = 'Failed to record score. Please try again.';
           }
